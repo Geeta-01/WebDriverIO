@@ -91,10 +91,6 @@ class RetirementCalculatorPage {
       let calcResult = await this.resultsSection.getText();
       return calcResult;   
     }
-
-    // async isResultsDisplayed() {
-    //   return (await this.resultsSection.isDisplayed({timeout: 1000}));    
-    // }
   
     async getErrorMessage() {
       let errorMsg = await this.errorMessageSection.getText();
