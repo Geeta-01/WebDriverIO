@@ -34,3 +34,16 @@ Then(/^user should see the error messages for "([^"]*)"$/, async (testCaseName) 
 Then(/^user should see the Social Security details for "([^"]*)"$/, async (testCaseName) => {
   await Calculate.validateSocialSecurityDetails(testCaseName);
 });
+
+
+Then(/^user should see all the required fields are blank for "([^"]*)"$/, async (testCaseName) => {
+	console.log(testCaseName);
+	await Calculate.validateAllFieldsBlank(testCaseName);
+});
+
+
+Then(/^user should see the retirement calculator form$/, async (testCaseName) => {
+  await Calculate.editRetirementCalculatorValues(testCaseName);
+	});
+
+

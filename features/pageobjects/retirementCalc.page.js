@@ -31,8 +31,11 @@ class RetirementCalculatorPage {
    
   //Result section buttons
     get emailResultBtn() { return $('//*[@data-bs-target="#calc-email-modal"]') };
-    get editInfoButton() { return $('//button[@onclick="navigateToRetirementForm();"]') };
+    get editInfoButton() { return $('//button[@class = "dsg-btn-secondary dsg-btn-block" and text() ="Edit info"]') };
     get fullResultsButton() { return $('//button[@onclick="showFullResults();"]') };
+
+  //Pre-Retirement calculator Form
+    get retirementCalculatorForm() { return $('//*[@id="retirement-calculator"]') };
     
   //invalid error messages
     get invalidCurrentAge() { return $('//*[@id="invalid-current-age-error"]') };
@@ -102,6 +105,11 @@ class RetirementCalculatorPage {
               case 'Clear-Form':
                   await this.clearFormButton.click();
                   logger.info('Clicked on Clear Form Button');
+                  break;
+              case 'Edit Info':
+                  await utils.elementAction(this.editInfoButton, 'waitForDisplayed', { timeout: 5000 }, 'Edit Info Button');
+                  await this.editInfoButton.click();
+                  logger.info('Clicked on Edit Info Button');
                   break;
               default:
                   throw new Error(`Button "${button}" not recognized`);
@@ -253,7 +261,37 @@ class RetirementCalculatorPage {
           throw error;
       }
   }
-      
+
+  async validateAllFieldsBlank(testCaseName){
+    try {
+        const data = await utils.fetchDataFromJson(testCaseName);
+        await utils.assertElementsHaveValues([
+            { element: this.currentAgeInput, expectedValue: '', elementName: 'currentAge' },
+            { element: this.retirementAgeInput, expectedValue: '', elementName: 'retirementAge' },
+            { element: this.currentAnnualIncomeInput, expectedValue: '', elementName: 'currentAnnualIncome' },
+            { element: this.currentSpouseIncomeInput, expectedValue: '', elementName: 'currentSpouseIncome' },
+            { element: this.currentRetirementSavingsInput, expectedValue: '', elementName: 'currentRetirementSavings' },
+            { element: this.currentAnnualSavingsInput, expectedValue: '', elementName: 'currentAnnualSavings' },
+            { element: this.increaseInSavingRateInput, expectedValue: '', elementName: 'increaseInSavingRate' }
+        ]); 
+            logger.info('All fields are blank as expected');
+        } catch (error) {
+            logger.error("Error validating all fields blank:", error);
+            throw error;
+        }
+  } 
+  async editRetirementCalculatorValues(testCaseName) {
+    try {
+        await this.retirementCalculatorForm.waitForDisplayed({ timeout: 10000 });
+        await utils.elementAction(this.retirementCalculatorForm, 'isDisplayed', null, 'Retirement Calculator Form');
+        const data = await utils.fetchDataFromJson(testCaseName);
+
+        
+    } catch (error) {
+        logger.error("Error validating retirement calculator form:", error);
+        throw error;
+    }
+    } 
 
   }
  
