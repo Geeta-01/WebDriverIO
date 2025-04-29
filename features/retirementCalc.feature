@@ -1,25 +1,45 @@
-Feature: Retirement Calculator
+Feature: Retirement savings calculation using securian pre-retirement calculator
 
-  Scenario Outline: Positive - Calculate retirement savings with valid inputs
-    Given I am on the Retirement Calculator page
-    When I fill in the retirement calculator form with valid data from "<row>"
-    And I submit the calculator form
-    Then I should see the calculated retirement savings message
+  Background: Launch page
+    Given user navigates to the retirement calculator page
 
-    Examples:
-      | row |
-      | 1   |
-      | 2   |
-      | 3   |
-      | 5   |
-    
+    Scenario Outline: Fill details and calculate retirement savings - of - <testCaseName>
+      Given user fills the required details for "<testCaseName>"
+      When user clicks on Calculate button
+      Then user should see the retirement savings details
 
-  Scenario Outline: Negative - Handle invalid inputs
-    Given I am on the Retirement Calculator page
-    When I fill in the retirement calculator form with invalid data from "<row>"
-    And I submit the calculator form
-    Then I should see an error message as "Please fill out all required fields"
+      Examples:
+        | testCaseName                   |
+        | withExcludeInflation            |
+        | verifywithSocialSecurityNo     |
+        | verifyWithSocialSecurityYes    |
+        | verifyWtihMaritalStatusMarried |
 
-    Examples:
-      | row |
-      | 4   |
+    Scenario Outline: Fill details and calculate retirement savings - of - <testCaseName>
+        Given user fills the required details for "<testCaseName>"
+        When user clicks on Calculate button
+        Then user should see the error messages for "<testCaseName>"
+        Examples:
+            | testCaseName           |
+            | noCurrentAge           |
+            | noRetirementAge        |
+            | noCurrentIncome        |
+            | noCurrentTotalSavings  |
+            | noCurrentAnnualSavings |
+            | noSavingsIncreaseRate  |
+            | currAgeGrtThanRetAge   |
+            | currentAgeMaxVal       |
+            | retirementAgeMaxVal    |
+   
+    Scenario Outline: Validting Social Security Details - <testCaseName>
+        Given user fills the required details for "<testCaseName>"
+        Then user should see the Social Security details for "<testCaseName>"
+        Examples:
+            | testCaseName                   |
+            | verifywithSocialSecurityNo     |
+            | verifyWithSocialSecurityYes    |
+            | verifyWtihMaritalStatusMarried |
+
+
+            
+  

@@ -1,101 +1,260 @@
-const { $, browser } = require('@wdio/globals')
+import utils from '../../utils/utils.js';
+import logger from '../../utils/logger.js';
+
 class RetirementCalculatorPage {
+  //Calculaor page locators
     get currentAgeInput() { return $('#current-age'); }
     get retirementAgeInput() { return $('#retirement-age'); }
-    get currentAnnualIncomeInput() { return $('//input[@id="current-income"]'); }
-    get currentSpouseIncomeInput() {return $('#spouse-income');}
+    get currentAnnualIncomeInput() { return $('//*[@id="current-income"]'); }
+    get currentSpouseIncomeInput() {return $('//*[@id= "spouse-income"]');}
     get currentRetirementSavingsInput() { return $('#current-total-savings'); }
     get currentAnnualSavingsInput() { return $('#current-annual-savings'); }
     get increaseInSavingRateInput() { return $('#savings-increase-rate'); }
-// Social security Incom locators
-    get noSSBenifits() {return $('#no-social-benefits');}
-    get yesSSBenifits() {return $('label[for = "yes-social-benefits"]');}
 
-    get matrialStatusSingle() { return $('label[for = "single"]');}
-    get matrialStatusMarried() { return $('label[for = "married"]');}
+  // Social security Incom locators
+    get noSSBenifits() {return $('//label[@for= "no-social-benefits"]');}
+    get yesSSBenifits() {return $('//label[@for = "yes-social-benefits"]');}
+    get maritalStatusFields() { return $('//*[@class="row social-security-field"]') };
+    get matrialStatusSingle() { return $('//label[@for="single"]');}
+    get matrialStatusMarried() { return $('//label[@for="married"]');}
+    get ssOverrideAmtInput() { return $('//*[@id="social-security-override"]');}
 
-    get ssOverrideAmtInput() { return $('#social-security-override');}
+  //Buttons in caculotor page
+    get calculateButton() { return $('//*[@data-tag-id="submit"]'); }
+    get clearFormButton() { return $('//*[@onclick="clearRetirementForm();"]') };
 
-//Adjust Default values locators
-    get adjustDefaultValuesLink() { return $('//a[contains(text(), "Adjust default values")]');}
-    get defaultValuesCaculatorModal(){return $("#default-values-modal");}
-    get additionalIncomeInput(){ return $('#additional-income');}
-    get retirementDurationInput(){ return $('#retirement-duration');}
-
-    get inflationYesRadio(){ return $('//label[@for= "include-inflation"and text() = "Yes"]');}
-    get expectedInflationRateInput(){ return $('#expected-inflation-rate');}
-    get inflationNoRadio(){ return $('//label[@for= "exclude-inflation"and text() = "No"]');}
+  //Result section locators  
+    get resultSection() { return $('//*[@id="calculator-results-section"]') };
+    get resultMessage() { return $('//*[@id="result-message"]') };
+    get resultChart() { return $('//*[@id="results-chart"]') };
+    get resultTable() { return $('//table[@class="dsg-featured-data-stacked-table"]') };
+   
+  //Result section buttons
+    get emailResultBtn() { return $('//*[@data-bs-target="#calc-email-modal"]') };
+    get editInfoButton() { return $('//button[@onclick="navigateToRetirementForm();"]') };
+    get fullResultsButton() { return $('//button[@onclick="showFullResults();"]') };
     
-    get finalAnnualIncomeInput(){ return $('#retirement-annual-income');}
-    get preRetiementRetunInput(){ return $('#pre-retirement-roi');}
-    get postRetiementRetunInput(){ return $('#post-retirement-roi');}
-
-    get saveChangesButton(){return $('//button[text()="Save changes"]');}
-
-
-    get calculateButton() { return $('//button[ text()= "Calculate"]'); }
-    get resultsSection() { return $('//p[@id="result-message"]'); }
-    get errorMessageSection() { return $('#calculator-input-alert-desc'); }
+  //invalid error messages
+    get invalidCurrentAge() { return $('//*[@id="invalid-current-age-error"]') };
+    get invalidRetirementAge() { return $('//*[@id="invalid-retirement-age-error"]') };
+    get invalidCurrentIncome() { return $('//*[@id="invalid-current-income-error"]') };
+    get invalidCurrentTotalSaving() { return $('//*[@id="invalid-current-total-savings-error"]') };
+    get invalidCurrentAnnualSaving() { return $('//*[@id="invalid-current-annual-savings-error"]') };
+    get invalidSavingIncRate() { return $('//*[@id="invalid-savings-increase-rate-error"]') };
   
-    async open() {
-      await browser.maximizeWindow();
-      await browser.url('https://www.securian.com/insights-tools/retirement-calculator.html');
+  
+    /* Filling the details */
+    async fillRequiredDetails(testCaseName){
+      try {
+        console.log("testCaseName", testCaseName);
+        await this.fillAgeDetails(testCaseName);
+        await this.fillIncomeDetails(testCaseName);
+        await this.fillSocialSecurityDetails(testCaseName);
     }
-  
-    async fillForm(data) {
-      await this.currentAgeInput.setValue(data.currentAge);
-      await this.retirementAgeInput.setValue(data.retirementAge);
-      await this.currentAnnualIncomeInput.click();
-      await this.currentAnnualIncomeInput.setValue(data.currentIncomeInput);
-      await this.currentSpouseIncomeInput.click();
-      await this.currentSpouseIncomeInput.setValue(data.spouseIncomeInput);
-      await this.currentRetirementSavingsInput.click();
-      await this.currentRetirementSavingsInput.setValue(data.retirementSavings);
-      await this.currentAnnualSavingsInput.setValue(data.currentSavingsRateInput);
-      await this.increaseInSavingRateInput.setValue(data.increaseSavingsRateInput);
-        if (data.includeSS.toLowerCase() ==='yes'){
-        await this.yesSSBenifits.click();
-        if(data.matrialStaus.toLowerCase() === 'single'){
-          await this.matrialStatusSingle.click();}
-          else{await this.matrialStatusMarried.click();}
-          await this.ssOverrideAmtInput.click();
-          await this.ssOverrideAmtInput.setValue(data.overrideAmtSS);
+    catch (error) {
+        logger.error("Error filling required details:", error);
+        throw error;
+    }
+    }
 
-        // Adjust Default Values 
-        await this.adjustDefaultValuesLink.isClickable({timeout : 1000});
-        await this.adjustDefaultValuesLink.click(); 
-        await this.defaultValuesCaculatorModal.waitForDisplayed({timeout: 1000});
-        await this.defaultValuesCaculatorModal.isDisplayed();
-        await this.additionalIncomeInput.click();
-        await this.additionalIncomeInput.setValue(data.additionalIncome);
-        await this.retirementDurationInput.setValue(data.retirementDuration);
-        if (data.isInflation.toLowerCase() === 'yes'){ 
-          await this.inflationYesRadio.click();
-          await this.expectedInflationRateInput.setValue(data.expectedInflationRate);}
-        else{ await this.inflationNoRadio.click();}
-        await this.finalAnnualIncomeInput.setValue(data.finalAnnualIncome);
-        await this.preRetiementRetunInput.setValue(data.preRetireInvestROI);
-        await this.postRetiementRetunInput.setValue(data.postRetireInvestROI);
-        await this.saveChangesButton.isClickable({timeout: 1000});
-        await this.saveChangesButton.click();
+    /* Filling the age details */
+    async fillAgeDetails(testCaseName) {
+      const data = await utils.fetchDataFromJson(testCaseName);
+      await utils.elementAction(this.currentAgeInput, 'setValue', data.currentAge, 'Current Age');
+      await utils.elementAction(this.retirementAgeInput, 'setValue', data.retirementAge, 'Retirement Age');
+    }
+
+    async fillIncomeDetails(testCaseName){
+      const data = await utils.fetchDataFromJson(testCaseName);
+      await utils.elementAction(this.currentAnnualIncomeInput, 'setValue', data.currentIncomeInput, 'currentAnnualIncomeInput');
+      await utils.elementAction(this.currentSpouseIncomeInput, 'setValue', data.spouseIncomeInput,'currentSpouseIncomeInput');
+      await utils.elementAction(this.currentRetirementSavingsInput, 'setValue', data.retirementSavings,'currentRetirementSavingsInput');
+      await utils.elementAction(this.currentAnnualSavingsInput, 'setValue', data.currentSavingsRateInput, 'currentAnnualSavingsInput');
+      await utils.elementAction(this.increaseInSavingRateInput, 'setValue', data.increaseSavingsRateInput, 'increaseInSavingRateInput');
+      
+    }
+
+
+    async fillSocialSecurityDetails(testCaseName){
+      const data = await utils.fetchDataFromJson(testCaseName);
+        if (data.includeSocialSecurity ==='No'){
+          await utils.elementAction (this.noSSBenifits, 'click', null, 'No Social Security Benefits');
+        }else{
+          await utils.elementAction (this.yesSSBenifits, 'click', null, 'Yes Social Security Benefits');
+          await utils.elementAction (this.maritalStatusFields, 'isDisplayed', null, 'Marital Status Fields');
+          if(data.maritalStatus === 'Married'){
+              await utils.elementAction (this.matrialStatusMarried, 'click', null, 'Marital Status as ' + data.maritalStatus);
+            }else{
+            await utils.elementAction (this.matrialStatusSingle, 'click', null, 'Marital Status as ' + data.maritalStatus);
+            }
+            await utils.elementAction (this.ssOverrideAmtInput, 'setValue', data.socialSecurityOverrideAmt, 'Social Security override amount');
+        }
       }
-    }
-  
-    async submit() {
-      await this.calculateButton.click();
-      await browser.pause(3000);
+
+    /* Click on the buttons */
+    async clickButton(button) {
+      try {
+          switch (button) {
+              case 'Calculate':
+                  await this.calculateButton.click();
+                  logger.info('Clicked on Calculate Button');
+                  break;
+              case 'Clear-Form':
+                  await this.clearFormButton.click();
+                  logger.info('Clicked on Clear Form Button');
+                  break;
+              default:
+                  throw new Error(`Button "${button}" not recognized`);
+          }
+      } catch (error) {
+          logger.error("Error clicking button:", error);
+          throw error;
+
       }
-  
-    async getCalcResult() {
-      this.resultsSection.isDisplayed({timeout: 1000});
-      let calcResult = await this.resultsSection.getText();
-      return calcResult;   
-    }
-  
-    async getErrorMessage() {
-      let errorMsg = await this.errorMessageSection.getText();
-      return errorMsg;
-    }
   }
   
-  module.exports = new RetirementCalculatorPage();
+      
+    //Validate the result section 
+    async validateResultSection() {
+        try {
+            await this.resultSection.waitForDisplayed({ timeout: 10000 });
+            const displayValue = await this.resultSection.getCSSProperty('display');
+            if (displayValue.value === 'none') {
+                logger.info('Result Section is not displayed');
+                throw new Error('Result Section is not displayed');
+            } else {
+                await utils.elementAction(this.resultSection, 'isDisplayed', null, 'Result Section');
+                await utils.elementAction(this.resultMessage, 'isDisplayed', null, 'Result Message');
+                await utils.elementAction(this.resultChart, 'isDisplayed', null, 'Result Chart');
+                await utils.elementAction(this.resultTable, 'isDisplayed', null, 'Result Table');
+                await utils.elementAction(this.emailResultBtn, 'isClickable', null, 'Email Result Button');
+                await utils.elementAction(this.editInfoButton, 'isClickable', null, 'Edit Info Button');
+                await utils.elementAction(this.fullResultsButton, 'isClickable', null, 'Full Results Button');
+            }
+        } catch (error) {
+            logger.error("Error validating result section:", error);
+            throw error;
+
+        }
+    }
+
+    //Validate the error messages in negative testing
+
+    async validateErrorMessages(testCaseName) {
+      try {
+          switch (testCaseName) {
+              case 'noCurrentAge':
+                  await this.validateInvalidCurrentAge(testCaseName);
+                  break;
+              case 'noRetirementAge':
+                  await this.validateInvalidRetirementAge(testCaseName);
+                  break;
+              case 'noCurrentIncome':
+                  await this.validateInvalidCurrentIncome(testCaseName);
+                  break;
+              case 'noCurrentTotalSavings':
+                  await this.validateInvalidCurrentTotalSavings(testCaseName);
+                  break;
+              case 'noCurrentAnnualSavings':
+                  await this.validateInvalidCurrentAnnualSavings(testCaseName);
+                  break;
+              case 'noSavingsIncreaseRate':
+                  await this.validateInvalidSavingsIncreaseRate(testCaseName);
+                  break;
+              case 'currAgeGrtThanRetAge':
+                  await this.validateInvalidRetirementAge(testCaseName);
+                  break;
+              case 'currentAgeMaxVal':
+                  await this.validateInvalidCurrentAge(testCaseName);
+                  break;
+              case 'retirementAgeMaxVal':
+                  await this.validateInvalidRetirementAge(testCaseName);
+                  break;
+              default:
+                  throw new Error('Invalid Test Case Name: ', testCaseName);
+          }
+      } catch (error) {
+          logger.error("Error validating error messages:", error);
+          throw error;
+
+      }
+  }
+
+  // Validate the error messages for current age
+  async validateInvalidCurrentAge(testCaseName) {
+      const data = await utils.fetchDataFromJson(testCaseName);
+      await utils.validateErrorMessage(this.invalidCurrentAge, data.errorMessage, 'Current Age');
+  }
+
+  // Validate the error messages for retirement age
+  async validateInvalidRetirementAge(testCaseName) {
+      const data = await utils.fetchDataFromJson(testCaseName);
+      await utils.validateErrorMessage(this.invalidRetirementAge, data.errorMessage, 'Retirement Age');
+  }
+
+ //Validate the error messages for current income 
+  async validateInvalidCurrentIncome(testCaseName) {
+      const data = await utils.fetchDataFromJson(testCaseName);
+      await utils.validateErrorMessage(this.invalidCurrentIncome, data.errorMessage, 'Current Income');
+  }
+
+  //Validate the error messages for current total savings 
+  async validateInvalidCurrentTotalSavings(testCaseName) {
+      const data = await utils.fetchDataFromJson(testCaseName);
+      await utils.validateErrorMessage(this.invalidCurrentTotalSaving, data.errorMessage, 'Current Total Savings');
+  }
+
+  //Validate the error messages for current annual savings 
+  async validateInvalidCurrentAnnualSavings(testCaseName) {
+      const data = await utils.fetchDataFromJson(testCaseName);
+      await utils.validateErrorMessage(this.invalidCurrentAnnualSaving, data.errorMessage, 'Current Annual Savings');
+  }
+
+ //Validate the error messages for savings increase rate 
+  async validateInvalidSavingsIncreaseRate(testCaseName) {
+      const data = await utils.fetchDataFromJson(testCaseName);
+      await utils.validateErrorMessage(this.invalidSavingIncRate, data.errorMessage, 'Savings Increase Rate');
+  }
+
+ //Validate the social security details
+  async validateSocialSecurityDetails(testCaseName) {
+      try {
+          const data = await utils.fetchDataFromJson(testCaseName);
+          if (data.includeSocialSecurity === 'No') {
+              await utils.assertElementsAreSelected([
+                  { element: this.noSSBenifits, shouldBeSelected: true, elementName: 'socialSecurityBenefits' }
+              ]);
+              logger.info('Social Security Benefits is not included');
+          }
+          else {
+              await utils.assertElementsAreSelected([
+                  { element: this.yesSSBenifits, shouldBeSelected: true, elementName: 'socialSecurityBenefits' }
+              ]);
+              logger.info('Social Security Benefits is included');
+              await utils.elementAction(this.maritalStatusFields, 'isDisplayed', null, 'Marital Status Fields');
+              if (data.maritalStatus === 'Married') {
+                  await utils.assertElementsAreSelected([
+                      { element: this.matrialStatusMarried, shouldBeSelected: true, elementName: 'maritalStatus' }
+                  ]);
+                  logger.info('Marital Status: Married');
+              }else {
+                  await utils.assertElementsAreSelected([
+                      { element: this.matrialStatusSingle, shouldBeSelected: true, elementName: 'maritalStatus' }
+                  ]);
+                  logger.info('Marital Status: Single');
+              }
+              await utils.assertElementsHaveValues([
+                  { element: this.ssOverrideAmtInput, expectedValue: data.socialSecurityOverrideAmt, elementName: 'socialSecurityOverrideAmt' }
+              ]);
+              logger.info('Social Security Override Amount:', data.socialSecurityOverrideAmt);
+          }
+      } catch (error) {
+          logger.error("Error validating social security details:", error);
+          throw error;
+      }
+  }
+      
+
+  }
+ 
+export default  new RetirementCalculatorPage();
