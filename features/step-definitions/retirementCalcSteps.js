@@ -42,8 +42,4 @@ Then(/^user should see all the required fields are blank for "([^"]*)"$/, async 
 });
 
 
-Then(/^user should see the retirement calculator form$/, async (testCaseName) => {
-  await Calculate.editRetirementCalculatorValues(testCaseName);
-	});
-
 

@@ -18,6 +18,8 @@ class adjustDefaultValuesPage {
 
     get saveChangesButton(){return $('//button[text()="Save changes"]');}
 
+
+///Method to fill the default values in the modal
 async fillAdjustDefaultValues(testCaseName){
   console.log(`Filling default values for test case: ${testCaseName}`);
   try {

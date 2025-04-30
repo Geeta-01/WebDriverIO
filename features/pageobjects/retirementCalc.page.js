@@ -11,7 +11,7 @@ class RetirementCalculatorPage {
     get currentAnnualSavingsInput() { return $('#current-annual-savings'); }
     get increaseInSavingRateInput() { return $('#savings-increase-rate'); }
 
-  // Social security Incom locators
+  // Social security Income locators
     get noSSBenifits() {return $('//label[@for= "no-social-benefits"]');}
     get yesSSBenifits() {return $('//label[@for = "yes-social-benefits"]');}
     get maritalStatusFields() { return $('//*[@class="row social-security-field"]') };
@@ -19,7 +19,6 @@ class RetirementCalculatorPage {
     get matrialStatusMarried() { return $('//label[@for="married"]');}
     get ssOverrideAmtInput() { return $('//*[@id="social-security-override"]');}
 
-  //Buttons in caculotor page
     get calculateButton() { return $('//*[@data-tag-id="submit"]'); }
     get clearFormButton() { return $('//*[@onclick="clearRetirementForm();"]') };
 
@@ -29,15 +28,15 @@ class RetirementCalculatorPage {
     get resultChart() { return $('//*[@id="results-chart"]') };
     get resultTable() { return $('//table[@class="dsg-featured-data-stacked-table"]') };
    
-  //Result section buttons
+  //Result section buttons locators
     get emailResultBtn() { return $('//*[@data-bs-target="#calc-email-modal"]') };
     get editInfoButton() { return $('//button[@class = "dsg-btn-secondary dsg-btn-block" and text() ="Edit info"]') };
     get fullResultsButton() { return $('//button[@onclick="showFullResults();"]') };
 
-  //Pre-Retirement calculator Form
+  //Pre-Retirement calculator Form locator
     get retirementCalculatorForm() { return $('//*[@id="retirement-calculator"]') };
     
-  //invalid error messages
+  //Error message locators
     get invalidCurrentAge() { return $('//*[@id="invalid-current-age-error"]') };
     get invalidRetirementAge() { return $('//*[@id="invalid-retirement-age-error"]') };
     get invalidCurrentIncome() { return $('//*[@id="invalid-current-income-error"]') };
@@ -46,7 +45,8 @@ class RetirementCalculatorPage {
     get invalidSavingIncRate() { return $('//*[@id="invalid-savings-increase-rate-error"]') };
   
   
-    /* Filling the details */
+    // This function is used to fill the required details in the retirement calculator form
+    
     async fillRequiredDetails(testCaseName){
       try {
         console.log("testCaseName", testCaseName);
@@ -60,13 +60,14 @@ class RetirementCalculatorPage {
     }
     }
 
-    /* Filling the age details */
+    // This function is used to fill the age details based on the test case name
     async fillAgeDetails(testCaseName) {
       const data = await utils.fetchDataFromJson(testCaseName);
       await utils.elementAction(this.currentAgeInput, 'setValue', data.currentAge, 'Current Age');
       await utils.elementAction(this.retirementAgeInput, 'setValue', data.retirementAge, 'Retirement Age');
     }
 
+    // This function is used to fill the income details based on the test case name
     async fillIncomeDetails(testCaseName){
       const data = await utils.fetchDataFromJson(testCaseName);
       await utils.elementAction(this.currentAnnualIncomeInput, 'setValue', data.currentIncomeInput, 'currentAnnualIncomeInput');
@@ -77,7 +78,8 @@ class RetirementCalculatorPage {
       
     }
 
-
+    // This function is used to fill the social security details based on the test case name
+    // It checks if the user has selected "Yes" or "No" for social security benefits and fills the details accordingly
     async fillSocialSecurityDetails(testCaseName){
       const data = await utils.fetchDataFromJson(testCaseName);
         if (data.includeSocialSecurity ==='No'){
@@ -94,7 +96,8 @@ class RetirementCalculatorPage {
         }
       }
 
-    /* Click on the buttons */
+    
+    // This function is used to click on the buttons in the retirement calculator page
     async clickButton(button) {
       try {
           switch (button) {
@@ -122,7 +125,8 @@ class RetirementCalculatorPage {
   }
   
       
-    //Validate the result section 
+    
+    // This function is used to validate the result section after clicking the calculate button
     async validateResultSection() {
         try {
             await this.resultSection.waitForDisplayed({ timeout: 10000 });
@@ -146,8 +150,7 @@ class RetirementCalculatorPage {
         }
     }
 
-    //Validate the error messages in negative testing
-
+    //validate the error messages based on the test case name
     async validateErrorMessages(testCaseName) {
       try {
           switch (testCaseName) {
@@ -188,13 +191,14 @@ class RetirementCalculatorPage {
       }
   }
 
-  // Validate the error messages for current age
+  // validate the error messages for current age based on the test case name
   async validateInvalidCurrentAge(testCaseName) {
       const data = await utils.fetchDataFromJson(testCaseName);
       await utils.validateErrorMessage(this.invalidCurrentAge, data.errorMessage, 'Current Age');
   }
 
-  // Validate the error messages for retirement age
+  
+  // validate the error messages for retirement age based on the test case name
   async validateInvalidRetirementAge(testCaseName) {
       const data = await utils.fetchDataFromJson(testCaseName);
       await utils.validateErrorMessage(this.invalidRetirementAge, data.errorMessage, 'Retirement Age');
@@ -218,13 +222,13 @@ class RetirementCalculatorPage {
       await utils.validateErrorMessage(this.invalidCurrentAnnualSaving, data.errorMessage, 'Current Annual Savings');
   }
 
- //Validate the error messages for savings increase rate 
-  async validateInvalidSavingsIncreaseRate(testCaseName) {
+   //Validate the error messages for savings increase rate 
+   async validateInvalidSavingsIncreaseRate(testCaseName) {
       const data = await utils.fetchDataFromJson(testCaseName);
       await utils.validateErrorMessage(this.invalidSavingIncRate, data.errorMessage, 'Savings Increase Rate');
   }
 
- //Validate the social security details
+  //validate the social security details based on the test case name
   async validateSocialSecurityDetails(testCaseName) {
       try {
           const data = await utils.fetchDataFromJson(testCaseName);
@@ -262,6 +266,8 @@ class RetirementCalculatorPage {
       }
   }
 
+  
+  //validate that all the fields in the retirement calculator are blank
   async validateAllFieldsBlank(testCaseName){
     try {
         const data = await utils.fetchDataFromJson(testCaseName);
@@ -280,19 +286,7 @@ class RetirementCalculatorPage {
             throw error;
         }
   } 
-  async editRetirementCalculatorValues(testCaseName) {
-    try {
-        await this.retirementCalculatorForm.waitForDisplayed({ timeout: 10000 });
-        await utils.elementAction(this.retirementCalculatorForm, 'isDisplayed', null, 'Retirement Calculator Form');
-        const data = await utils.fetchDataFromJson(testCaseName);
-
-        
-    } catch (error) {
-        logger.error("Error validating retirement calculator form:", error);
-        throw error;
-    }
-    } 
-
+  
   }
  
 export default  new RetirementCalculatorPage();

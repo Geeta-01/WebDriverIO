@@ -8,5 +8,5 @@ Feature: Make adjustments to the default values to refine the retirement savings
         Then user should see the retirement savings details
         Examples:
             | testCaseName         |
-            # | withExcludeInflation |
-            # | withIncludeInflation |
+            | withExcludeInflation |
+            | withIncludeInflation |

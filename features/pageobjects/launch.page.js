@@ -3,13 +3,14 @@ import logger from '../../utils/logger';
 import utils from '../../utils/utils.js';
 
 class launchPage {
-
+    //* Page locators */
     get acceptCookiesButton() { return $('//button[@id = "onetrust-accept-btn-handler"]') };
     get closeCookiesIcon() { return $('//button[@aria-label = "Close"]') };
     get heading() { return $('//*[@id="calculator-intro-section"]/h2') };
     get infoBanner() { return $('//*[@id="assumption-label"]') };
 
     /* Launch the application */
+    //launch the application and navigate to the retirement calculator page
     async launch() {
         try {
             await browser.reloadSession();
@@ -22,7 +23,8 @@ class launchPage {
         }
     }
 
- //Close the cookies pop up 
+ 
+ //This method is used to close the cookies pop up if it is displayed on the page.
  async closeCookiesPopUp() {
     try {
         await utils.elementAction(this.closeCookiesIcon, 'click', null, 'Close Cookies Icon');

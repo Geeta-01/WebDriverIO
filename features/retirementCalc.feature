@@ -48,16 +48,4 @@ Feature: Retirement savings calculation using securian pre-retirement calculator
             | verifyWithSocialSecurityYes    |
             | verifyWtihMaritalStatusMarried |
 
-    # Scenario Outline: Fill details and calculate retirement savings - of - <testCaseName>
-    #   Given user fills the required details for "<testCaseName>"
-    #   When user clicks on Calculate button
-    #   Then user should see the retirement savings details
-    #   And user clicks on Edit Info button
-    #   Then user should able to edit the values for "<editValuesTC>" 
-
-    #   Examples:
-    #     | testCaseName                   | editValuesTC |
-    #     | verifywithSocialSecurityNo     | verifyWithSocialSecurityYes|
-
-            
   
